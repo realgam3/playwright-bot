@@ -2,8 +2,8 @@ FROM node:20-slim
 LABEL maintainer="Tomer Zait (realgam3) <realgam3@gmail.com>"
 
 ARG USERNAME=app
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-ENV PUPPETEER_EXECUTABLE_PATH /opt/google/chrome/chrome
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD true
+ENV PLAYWRIGHT_EXECUTABLE_PATH /opt/google/chrome/chrome
 WORKDIR /usr/src/app
 COPY package*.json .
 
@@ -15,13 +15,14 @@ RUN set -eux; \
       ca-certificates \
       curl; \
     \
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list; \
+    echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list; \
     curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -; \
     \
     apt-get update; \
     apt-get install -y --no-install-recommends \
       libstdc++6 \
       google-chrome-stable \
+      firefox-esr \
       xvfb \
       fonts-freefont-ttf \
       fonts-noto-color-emoji \

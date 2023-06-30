@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const Xvfb = require("xvfb");
 const amqplib = require("amqplib");
 
 const bot = require("./bot");
@@ -26,6 +27,7 @@ const config = require(process.env.CONFIG_PATH || "./config.js");
         }
     }
 
+    const browser = await utils.getBrowser(config);
     const channel = await connection.createChannel();
     await channel.assertQueue(config.queue.name, {
         durable: false
@@ -35,7 +37,18 @@ const config = require(process.env.CONFIG_PATH || "./config.js");
         console.debug("\n[x] Received: %s", msg.content.toString());
         try {
             const data = JSON.parse(msg.content.toString());
-            await bot.run(data);
+
+            // Start xvfb
+            const xvfb = new Xvfb({
+                silent: true,
+                xvfb_args: config.xvfb.args,
+            });
+            xvfb.start();
+
+            await bot.run(data, config, browser);
+
+            // Stop xvfb
+            xvfb.stop();
         } catch (error) {
             console.error(`[!] Error: ${error.message}`);
         }

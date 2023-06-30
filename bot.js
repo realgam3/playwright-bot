@@ -1,10 +1,11 @@
 const Xvfb = require("xvfb");
 const axios = require("axios");
+const stringify = require("json-stringify-safe");
 
-const {chromium, firefox, webkit} = require("playwright"); // Use Chromium, Firefox or WebKit
+const utils = require("./utils");
 const config = require("./config");
 
-async function run(data, configuration = config) {
+async function run(data, configuration = config, browser = null) {
     // Bot Context
     const config = configuration;
 
@@ -14,25 +15,7 @@ async function run(data, configuration = config) {
     });
     xvfb.start();
 
-    let browser = null;
-    const browserOptions = config.browser.options;
-    switch (config.browser.product) {
-        case "firefox": {
-            browser = await firefox.launch(browserOptions);
-            break;
-        }
-        case "chrome": {
-            browser = await chromium.launch(browserOptions);
-            break;
-        }
-        case "webkit": {
-            browser = await webkit.launch(browserOptions);
-            break;
-        }
-        default: {
-            throw new Error(`Invalid browser product: ${config.browser.product}`);
-        }
-    }
+    browser = browser || await utils.getBrowser(config.browser);
     const browserContext = await browser.newContext(config.context.options);
     const context = {
         browser: browser,
@@ -46,14 +29,22 @@ async function run(data, configuration = config) {
     };
     global.context = context;
 
-    // Hard Timeout - To Protect The Bot
-    let timedOut = false;
-    const timeout = setTimeout(async function () {
+    // Kill Browser Function
+    const killBrowser = async function () {
         try {
-            await context.browser.close();
+            await context.browserContext.close();
+            if (!browser) {
+                await context.browser.close();
+            }
         } catch (error) {
             console.error(`Error closing browser after timeout: ${error}`);
         }
+    }
+
+    // Hard Timeout - To Protect The Bot
+    let timedOut = false;
+    const timeout = setTimeout(async function () {
+        await killBrowser();
         timedOut = true;
         console.error(`the data ${JSON.stringify(data)} timed out`);
     }, data.timeout || config.timeout);
@@ -82,43 +73,43 @@ async function run(data, configuration = config) {
             const object = context[objectName];
             const func = object[funcName];
             context.result = await func.apply(object, args);
-
-            if (data.webhook) {
-                axios.post(data.webhook, {
-                    "line": i,
-                    "action": action,
-                    "result": context.result,
-                }).catch((e) => {
-                    console.error(`[ERROR] failed to send webhook: ${e.name}`);
-                });
-            }
+            context.results.push({
+                "action": action,
+                "result": context.result,
+            });
         } catch (error) {
             console.error(`Error running action ${action}: ${error}`);
-
-            if (data.webhook) {
-                axios.post(data.webhook, {
-                    "line": i,
-                    "action": action,
-                    "error": {
-                        "name": error.name,
-                        "message": error.message,
-                    }
-                }).catch((e) => {
-                    console.error(`[ERROR] failed to send webhook: ${e.name}`);
-                });
-            }
+            context.error = error;
+            context.results.push({
+                "action": action,
+                "error": {
+                    "name": error.name,
+                    "message": error.message,
+                    "timedOut": timedOut,
+                }
+            });
             break;
         }
         i++;
     }
 
     clearTimeout(timeout);
-    try {
-        await context.browser.close();
-    } catch (error) {
-        console.error(`Error closing browser: ${error}`);
-    }
+    await killBrowser();
     xvfb.stop();
+
+    if (data.webhook) {
+        axios.post(data.webhook, stringify({
+            "status": context.error ? "fail" : "ok",
+            "result": context.results.pop(),
+            "error": context.error?.name,
+        }), {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        }).catch((e) => {
+            console.error(`[ERROR] failed to send webhook: ${e.name}`);
+        });
+    }
 }
 
 module.exports = {

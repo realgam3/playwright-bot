@@ -12,6 +12,7 @@
   "dependencies": {
     "amqplib": "^0.10.3",
     "axios": "^1.4.0",
+    "json-stringify-safe": "^5.0.1",
     "playwright": "^1.35.1",
     "xvfb": "^0.4.0"
   }
