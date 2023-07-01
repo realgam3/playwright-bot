@@ -50,8 +50,8 @@ async function run(data, configuration = config, browser = null) {
     }, data.timeout || config.timeout);
 
     // Setup Events
-    for (let [eventName, event] of Object.entries(config.page.events)) {
-        context.page.on(eventName, event);
+    for (let [eventName, event] of Object.entries(config.context.events)) {
+        context.browserContext.on(eventName, event);
     }
 
     // Hook JavaScript Functions

@@ -11,7 +11,23 @@ const config = require("./config");
             },
             {
                 "action": "page.waitForTimeout",
-                "args": [10000]
+                "args": [3000]
+            },
+            {
+                "action": "extend.closePages",
+                "args": []
+            },
+            {
+                "action": "page.waitForTimeout",
+                "args": [3000]
+            },
+            {
+                "action": "page.goto",
+                "args": ["https://www.google.com"]
+            },
+            {
+                "action": "page.waitForTimeout",
+                "args": [3000]
             }
         ],
     }, config);

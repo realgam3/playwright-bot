@@ -10,24 +10,23 @@ const config = {
     "extend": {
         // Add close pages function
         closePages: async function () {
-            for (let page of await context.browserContext.pages()) {
-                await page.close();
-            }
-
+            // for (let page of await context.browserContext.pages()) {
+            //     await page.close();
+            // }
+            context.browserContext.close();
+            context.browserContext = await context.browser.newContext(config.context.options);
             context.page = await context.browserContext.newPage();
-            for (let [eventName, event] of Object.entries(config.page.events)) {
-                context.page.on(eventName, event);
+
+            for (let [eventName, event] of Object.entries(config.context.events)) {
+                context.browserContext.on(eventName, event);
             }
             await context.page.addInitScript(`(${config.page.evaluate.document_start.toString()})();`);
         },
-        slowType: async function (selector, text, delay = 500) {
-            for (let chr of text) {
-                await context.page.type(selector, chr);
-                await context.page.waitForTimeout(delay);
-            }
+        slowType: async function (selector, text, options = {"delay": 500}) {
+            await context.page.type(selector, text, options);
         },
         setCookies: async function (cookies) {
-            await context.page.addCookies(cookies);
+            await context.browserContext.addCookies(cookies);
         },
     },
     "allowed_actions": [
@@ -59,16 +58,16 @@ const config = {
         }
     },
     "context": {
-        "options": {
-            "ignoreHTTPSErrors": true,
-        }
-    },
-    "page": {
         "events": {
             // "console": message => console.debug(`[${message.type().toUpperCase()}] ${message.text()}`),
             "error": message => console.error(message),
             "pageerror": message => console.error(message),
         },
+        "options": {
+            "ignoreHTTPSErrors": true,
+        }
+    },
+    "page": {
         "evaluate": {
             "document_start": function () {
                 window.open = () => {
