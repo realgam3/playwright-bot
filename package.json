@@ -10,7 +10,7 @@
   "author": "Tomer Zait (realgam3)",
   "license": "Apache-2.0",
   "bin": {
-    "rpc-bot": "./cli.js"
+    "playwright-bot": "./cli.js"
   },
   "dependencies": {
     "playwright": "^1.35.1",
