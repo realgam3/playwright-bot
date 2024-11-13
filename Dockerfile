@@ -2,8 +2,8 @@ FROM node:20-slim
 LABEL maintainer="Tomer Zait (realgam3) <realgam3@gmail.com>"
 
 ARG USERNAME=app
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD true
-ENV PLAYWRIGHT_EXECUTABLE_PATH /opt/google/chrome/chrome
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=true
+ENV PLAYWRIGHT_EXECUTABLE_PATH=/opt/google/chrome/chrome
 WORKDIR /usr/src/app
 COPY package*.json .
 

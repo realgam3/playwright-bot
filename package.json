@@ -1,7 +1,7 @@
 {
-  "name": "playwright-bot",
+  "name": "@rpc-bot/playwright-bot",
   "version": "0.1.0",
-  "description": "",
+  "description": "Playwright Bot - Queue Based Browser Client Automation (For CTFs and maybe more...)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,11 +10,19 @@
   "author": "Tomer Zait (realgam3)",
   "license": "Apache-2.0",
   "bin": {
-    "playwright-bot": "./cli.js"
+    "playwright-bot": "cli.js"
   },
   "dependencies": {
     "playwright": "^1.35.1",
-    "rpc-bot": "github:realgam3/rpc-bot-server",
+    "@rpc-bot/bot": "^0.1.1",
     "xvfb": "^0.4.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/realgam3/playwright-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/realgam3/playwright-bot/issues"
+  },
+  "homepage": "https://github.com/realgam3/playwright-bot#readme"
 }
