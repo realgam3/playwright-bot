@@ -1,4 +1,4 @@
-const utils = require("@rpc-bot/api/utils");
+const utils = require("@rpc-bot/bot/utils");
 const {firefox, chromium, webkit} = require("playwright");
 
 async function getBrowser(browserConfig) {
