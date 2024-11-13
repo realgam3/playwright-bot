@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const {log} = require("rpc-bot/logs");
-const {parseArgs} = require("rpc-bot/parsers");
+const {log} = require("@rpc-bot/api/logs");
+const {parseArgs} = require("@rpc-bot/api/parsers");
 
 const version = "0.1.0";
 

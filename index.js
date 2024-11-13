@@ -1,5 +1,5 @@
-const rpcBot = require("rpc-bot");
-const {log} = require("rpc-bot/logs");
+const rpcBot = require("@rpc-bot/api/rpc-bot");
+const {log} = require("@rpc-bot/api/logs");
 
 const {getKey} = require("./utils");
 const defaultConfig = require("./config");
